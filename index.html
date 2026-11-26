@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daniela Garcia — Build Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #EBF0F5;
+    --bg-2: #FFFFFF;
+    --bg-3: #DCE4EC;
+    --paper: #1E2530;
+    --paper-dim: #5B6472;
+    --moss: #33526C;
+    --moss-dim: #5E7F9C;
+    --rust: #6B7280;
+    --rust-dim: #4B5563;
+    --ochre: #3F6785;
+    --line: rgba(30,37,48,0.10);
+    --line-strong: rgba(30,37,48,0.20);
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap{ max-width: 1080px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+
+  a{ color: inherit; }
+
+  .eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ochre);
+  }
+
+  h1,h2,h3{ font-family: 'Fraunces', serif; font-weight: 600; margin: 0; }
+
+  nav{
+    position: sticky; top:0; z-index: 20;
+    backdrop-filter: blur(10px);
+    background: rgba(235,240,245,0.9);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap{ display:flex; align-items:center; justify-content: space-between; padding: 16px 28px; }
+  .nav-mark{ font-family:'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.08em; color: var(--paper); display:flex; align-items:center; gap:8px; }
+  .nav-mark .dot{ width:7px; height:7px; border-radius:50%; background: var(--moss); animation: pulse 2.4s infinite; }
+  .nav-links{ display:flex; gap: 26px; font-family:'IBM Plex Mono', monospace; font-size: 12.5px; letter-spacing: 0.06em; align-items:center; }
+  .nav-links a{ text-decoration:none; color: var(--paper-dim); transition: color 0.2s; }
+  .nav-links a:hover{ color: var(--ochre); }
+  .nav-links a.linkedin{ border: 1px solid var(--line-strong); padding: 6px 12px; border-radius: 3px; color: var(--paper); }
+  .nav-links a.linkedin:hover{ border-color: var(--ochre); color: var(--ochre); }
+  @media (max-width: 700px){ .nav-links a:not(.linkedin){ display:none; } }
+
+  @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }
+  @media (prefers-reduced-motion: reduce){
+    .nav-mark .dot{ animation: none; }
+    html{ scroll-behavior:auto; }
+  }
+
+  header.hero{ padding: 96px 0 64px; position: relative; }
+  .hero-grid{ display:grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items:center; }
+  @media (max-width: 860px){ .hero-grid{ grid-template-columns: 1fr; } }
+
+  .hero h1{ font-size: clamp(40px, 6vw, 64px); line-height: 1.05; margin: 14px 0 10px; }
+  .hero p.lede{ margin-top: 22px; max-width: 46ch; color: var(--paper-dim); font-size: 17px; }
+
+  .cta-row{ display:flex; gap: 14px; margin-top: 30px; flex-wrap: wrap; }
+  .btn{
+    font-family:'IBM Plex Mono', monospace; font-size: 12.5px; letter-spacing:0.05em;
+    text-decoration:none; padding: 11px 18px; border-radius: 3px; display:inline-flex; align-items:center; gap:8px;
+    border: 1px solid var(--line-strong); transition: all 0.2s;
+  }
+  .btn.primary{ background: var(--moss); color: var(--bg); border-color: var(--moss); }
+  .btn.primary:hover{ background: var(--moss-dim); }
+  .btn.ghost:hover{ border-color: var(--ochre); color: var(--ochre); }
+
+  .node-svg{ width: 100%; height: auto; }
+  .node-svg .trace{ stroke: var(--line-strong); stroke-width: 1.4; fill:none; stroke-dasharray: 6 5; }
+  .node-svg .trace-live{ stroke: var(--moss-dim); }
+  .node-svg circle.node{ fill: var(--bg-2); stroke: var(--line-strong); stroke-width: 1.4; }
+  .node-svg circle.node.on{ stroke: var(--moss); }
+  .node-svg circle.node.off{ stroke: var(--rust); }
+  .node-svg text{ font-family:'IBM Plex Mono', monospace; fill: var(--paper-dim); font-size: 9.5px; letter-spacing: 0.04em; }
+  .node-svg text.label-main{ fill: var(--paper); }
+
+  section{ padding: 70px 0; border-top: 1px solid var(--line); }
+  .section-head{ display:flex; align-items:baseline; justify-content: space-between; margin-bottom: 44px; flex-wrap: wrap; gap: 10px; }
+  .section-head h2{ font-size: clamp(26px,3.4vw,34px); margin-top:8px; }
+
+  .project{
+    display:grid; grid-template-columns: 220px 1fr; gap: 40px;
+    padding: 40px 0; border-bottom: 1px solid var(--line);
+    opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .project.in-view{ opacity:1; transform: translateY(0); }
+  .project:last-child{ border-bottom: none; }
+  @media (max-width: 760px){ .project{ grid-template-columns: 1fr; gap: 18px; } }
+
+  .project-meta{ font-family:'IBM Plex Mono', monospace; }
+  .project-meta .node-id{ color: var(--ochre); font-size: 12.5px; letter-spacing: 0.1em; }
+  .project-date{ margin-top: 6px; font-size: 12px; letter-spacing: 0.06em; color: var(--paper-dim); }
+  .status{
+    display:inline-flex; align-items:center; gap: 7px; margin-top: 16px;
+    font-size: 11.5px; letter-spacing: 0.06em; padding: 5px 9px; border-radius: 2px;
+    border: 1px solid var(--line-strong);
+  }
+  .status .dot{ width:6px; height:6px; border-radius:50%; }
+  .status.online .dot{ background: var(--moss); }
+  .status.online{ color: var(--moss); border-color: rgba(51,82,108,0.3); }
+  .status.offline .dot{ background: var(--rust); }
+  .status.offline{ color: var(--rust); border-color: rgba(107,114,128,0.3); }
+
+  .project-body h3{ font-size: 25px; margin-bottom: 6px; }
+  .project-body .tagline{ color: var(--paper-dim); font-style: italic; font-family:'Fraunces', serif; font-weight: 400; font-size: 16px; margin-bottom: 16px; }
+  .project-body p{ color: var(--paper-dim); font-size: 15px; margin: 0 0 12px; max-width: 62ch; }
+  .project-body p strong{ color: var(--paper); font-weight: 500; }
+
+  .chips{ display:flex; flex-wrap:wrap; gap: 8px; margin: 18px 0 10px; }
+  .chip{
+    font-family:'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.03em;
+    padding: 5px 10px; border: 1px solid var(--line-strong); border-radius: 2px; color: var(--paper-dim);
+  }
+
+  .project-link{
+    display:inline-flex; align-items:center; gap:7px; margin-top: 14px;
+    font-family:'IBM Plex Mono', monospace; font-size: 12.5px; text-decoration:none; color: var(--ochre);
+    border-bottom: 1px solid transparent; transition: border-color 0.2s;
+  }
+  .project-link:hover{ border-color: var(--ochre); }
+  .project-link.disabled{ color: var(--paper-dim); pointer-events: none; }
+  .project-link svg{ width:12px; height:12px; }
+
+  /* MEDIA — screenshots + video */
+  .media-block{ margin: 24px 0 6px; }
+  .media-label{ font-family:'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper-dim); margin-bottom: 10px; }
+
+  .video-frame{
+    border: 1px solid var(--line-strong); border-radius: 5px; overflow: hidden;
+    background: var(--bg-3); margin-bottom: 14px;
+  }
+  .video-frame video{ display:block; width:100%; height:auto; background:#000; }
+  .yt-embed{ position: relative; width: 100%; padding-top: 56.25%; background:#000; }
+  .yt-embed iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+  .video-caption{ font-family:'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--paper-dim); padding: 10px 14px; border-top: 1px solid var(--line); display:flex; justify-content: space-between; gap:10px; flex-wrap:wrap; }
+  .video-caption .rec{ color: var(--rust); display:inline-flex; align-items:center; gap:5px; }
+  .video-caption .rec .dot{ width:6px; height:6px; border-radius:50%; background: var(--rust); }
+
+  .media-gallery{ display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+  .media-frame{
+    border: 1px solid var(--line-strong); border-radius: 5px; overflow: hidden; background: var(--bg-3);
+    transition: border-color 0.2s;
+  }
+  .media-frame:hover{ border-color: var(--ochre); }
+  .media-frame img{ display:block; width:100%; height: 170px; object-fit: cover; object-position: top; background: var(--bg-2); }
+  .media-gallery.stack{ grid-template-columns: 1fr; }
+  .project-link + .project-link{ margin-left: 24px; }
+  .media-frame.full img{ height: auto; max-height: 560px; object-fit: contain; background: var(--bg-3); }
+  .media-frame figcaption{ font-family:'IBM Plex Mono', monospace; font-size: 11px; color: var(--paper-dim); padding: 8px 10px; border-top: 1px solid var(--line); margin:0; }
+  .media-frame{ margin:0; }
+
+  .media-placeholder{
+    border: 1px dashed var(--line-strong); border-radius: 5px;
+    padding: 28px 16px; text-align: center; color: var(--paper-dim);
+    font-family:'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.03em;
+    background: repeating-linear-gradient(135deg, var(--bg-2), var(--bg-2) 10px, var(--bg-3) 10px, var(--bg-3) 20px);
+  }
+
+  .stack-strip{ display:flex; flex-wrap:wrap; gap: 10px; }
+  .stack-strip .chip{ font-size: 12px; padding: 8px 14px; }
+
+  footer{ padding: 60px 0 80px; }
+  footer .foot-grid{ display:flex; justify-content: space-between; align-items:flex-end; flex-wrap: wrap; gap: 24px; }
+  footer h2{ font-size: clamp(28px, 4vw, 40px); max-width: 14ch; }
+  footer p{ color: var(--paper-dim); max-width: 40ch; font-size: 15px; }
+  footer .foot-links{ display:flex; gap: 12px; flex-wrap: wrap; }
+  .copyright{ font-family:'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--paper-dim); margin-top: 50px; display:flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-top: 1px solid var(--line); padding-top: 20px; }
+
+  ::selection{ background: var(--moss); color: var(--bg); }
+  a:focus-visible, button:focus-visible{ outline: 2px solid var(--ochre); outline-offset: 3px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="nav-mark"><span class="dot"></span>D.GARCIA / BUILD&nbsp;LOG</div>
+    <div class="nav-links">
+      <a href="#work">Projects</a>
+      <a href="#stack">Stack</a>
+      <a href="#contact">Contact</a>
+      <a class="linkedin" href="https://www.linkedin.com/in/daniela-garcia-1b4310294/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Daniela Garcia</h1>
+      <p class="lede">I design AI agents for enterprise systems, build practical tools for retail operations, and ship independent projects that explore what technology can do for everyday work.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="#work">View the build log</a>
+        <a class="btn ghost" href="https://www.linkedin.com/in/daniela-garcia-1b4310294/" target="_blank" rel="noopener">Connect on LinkedIn</a>
+      </div>
+    </div>
+    <div aria-hidden="true">
+      <svg class="node-svg" viewBox="0 0 380 300" xmlns="http://www.w3.org/2000/svg">
+        <path class="trace trace-live" d="M190,150 C130,110 90,90 60,60" />
+        <path class="trace trace-live" d="M190,150 C250,110 290,90 320,55" />
+        <path class="trace trace-live" d="M190,120 L190,68" />
+        <path class="trace" d="M190,150 C140,190 100,215 65,245" />
+        <path class="trace" d="M190,150 C245,195 285,220 320,250" />
+
+        <circle class="node on" cx="190" cy="150" r="30"/>
+        <text x="190" y="154" text-anchor="middle" class="label-main">DG</text>
+
+        <circle class="node on" cx="60" cy="55" r="20"/>
+        <text x="60" y="30" text-anchor="middle">CAREER</text>
+        <text x="60" y="40" text-anchor="middle">COACH</text>
+
+        <circle class="node on" cx="320" cy="50" r="20"/>
+        <text x="320" y="25" text-anchor="middle">A(I) CAN</text>
+        <text x="320" y="35" text-anchor="middle">DO THAT?</text>
+
+        <circle class="node on" cx="190" cy="48" r="20"/>
+        <text x="190" y="12" text-anchor="middle">A(I) EMEA</text>
+        <text x="190" y="22" text-anchor="middle">TOP 80</text>
+
+        <circle class="node off" cx="60" cy="250" r="20"/>
+        <text x="60" y="278" text-anchor="middle">TESTER</text>
+        <text x="60" y="288" text-anchor="middle">TRACKER</text>
+
+        <circle class="node off" cx="320" cy="255" r="20"/>
+        <text x="320" y="283" text-anchor="middle">WEATHER</text>
+        <text x="320" y="293" text-anchor="middle">TUNES</text>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<section id="work">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Selected builds</div>
+        <h2>Five systems, five different problems</h2>
+      </div>
+    </div>
+
+    <!-- PROJECT 1: EMEA -->
+    <div class="project">
+      <div class="project-meta">
+        <div class="node-id">NODE 01 — SCALED JUDGING AGENT</div>
+        <div class="project-date">Oct – Nov 2026</div>
+        <div class="status online"><span class="dot"></span>Live dashboards</div>
+      </div>
+      <div class="project-body">
+        <h3>A(I) Can Do That!? — EMEA Edition</h3>
+        <div class="tagline">159 submissions in, five finalists out — so judges only scored what mattered.</div>
+        <p>For the EMEA edition of the tournament, SAP employees across the region submitted 60-second videos showing how AI resolves a real work process. I built the workflow with <strong>Claude Code</strong>, starting by collecting and analyzing sample submissions so the scoring would reflect what strong entries actually look like.</p>
+        <p>I grounded the agent in a detailed rubric &mdash; creativity, replicability, storytelling, and impact, four points each &mdash; and designed a workflow that took in all 159+ submissions, screened out entries that didn&rsquo;t meet the requirements, scored the rest, and ranked them. It produced two deployed web applications for the judges: a <strong>Top 80</strong> view with score distributions, per-criterion breakdowns, filtering, and notes on every entry, and a <strong>Final Five</strong> view profiling each finalist with its scores and the reasoning behind its ranking.</p>
+        <p>The goal was to put judges&rsquo; time where it counts. Instead of reviewing every submission, EMEA judges only scored the final five the agent approved from the top 80 &mdash; the agent handled the volume, and people made the final call.</p>
+
+        <div class="media-block">
+          <div class="media-label">Screenshots</div>
+          <div class="media-gallery stack">
+            <figure class="media-frame full">
+              <img src="screenshot-emea-top80.png" alt="EMEA Top 80 dashboard showing submission totals, score distribution, average score by criterion, and a ranked submissions table">
+              <figcaption>Top 80 &mdash; score distribution, criteria averages, and ranked submissions</figcaption>
+            </figure>
+            <figure class="media-frame full">
+              <img src="screenshot-emea-final-five.png" alt="Meet the Finalists page showing the final five submissions with per-criterion scores and ranking rationale">
+              <figcaption>Final Five &mdash; finalist profiles with scores and ranking rationale</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="chips">
+          <span class="chip">Claude Code</span>
+          <span class="chip">Rubric-grounded agent</span>
+          <span class="chip">Workflow design</span>
+          <span class="chip">Interactive web dashboards</span>
+        </div>
+        <a class="project-link" href="https://top-80-submissions.onrender.com/" target="_blank" rel="noopener">
+          View the Top 80 dashboard
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+        </a>
+        <a class="project-link" href="https://final-five.onrender.com/" target="_blank" rel="noopener">
+          View the Final Five
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- PROJECT 1 -->
+    <div class="project">
+      <div class="project-meta">
+        <div class="node-id">NODE 02 — ENTERPRISE AGENT</div>
+        <div class="status online"><span class="dot"></span>Live demo</div>
+      </div>
+      <div class="project-body">
+        <h3>Career Coaching Agent</h3>
+        <div class="tagline">An agent that notices when someone is ready for their next role — before they've started looking.</div>
+        <p>Built in <strong>Joule Studio</strong>, this agent pulls an employee's skills, work history, and stated goals from <strong>SAP SuccessFactors</strong> modules and matches them against open internal roles. It runs a monthly check-in automatically to keep goals current, and can also be triggered on demand to generate fresh role-fit insights.</p>
+        <p>The core of the project is custom logic I wrote myself: a relevance-and-matching rubric that scores each open role against an employee's background, plus <strong>MCP servers</strong> I connected to supply scoring logic and role data to the agent. I also built a test database from scratch to validate the matching before presenting the use case to SAP's HR solution advisors, product teams, and external stakeholders for feedback on viability.</p>
+        <p>I pitched this use case after noticing a real gap in the employee journey: people's career goals go stale, and internal openings quietly pass them by. This agent is my attempt at closing that gap for any company investing in internal mobility.</p>
+
+        <div class="media-block">
+          <div class="media-label">Walkthrough</div>
+          <div class="video-frame">
+            <video controls preload="metadata" poster="career-coach-poster.jpg">
+              <source src="career-coach-demo.mp4" type="video/mp4">
+              Your browser doesn't support embedded video — you can open the file directly instead.
+            </video>
+            <div class="video-caption">
+              <span class="rec"><span class="dot"></span>Screen recording</span>
+              <span>Live demo of the agent handling a role-matching request end to end</span>
+            </div>
+          </div>
+
+          <div class="media-label">Screenshots</div>
+          <div class="media-gallery">
+            <figure class="media-frame">
+              <img src="screenshot-role-matches.png" alt="Joule agent chat panel showing internal roles matched to an employee's profile">
+              <figcaption>Internal roles matched to profile</figcaption>
+            </figure>
+            <figure class="media-frame">
+              <img src="screenshot-career-update.png" alt="Joule agent chat updating an employee's career path preferences">
+              <figcaption>Updating career path details</figcaption>
+            </figure>
+            <figure class="media-frame">
+              <img src="screenshot-process-flow.png" alt="Process flow diagram of the on-demand role matching agent">
+              <figcaption>Process flow — on-demand matching</figcaption>
+            </figure>
+            <figure class="media-frame">
+              <img src="screenshot-architecture.png" alt="Integration architecture diagram connecting Joule Studio, SAP BTP, and SuccessFactors via OData">
+              <figcaption>Integration architecture</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="chips">
+          <span class="chip">Joule Studio</span>
+          <span class="chip">SAP SuccessFactors</span>
+          <span class="chip">MCP Servers</span>
+          <span class="chip">OData API</span>
+          <span class="chip">Custom fit-scoring rubric</span>
+        </div>
+        <a class="project-link" href="https://career-coaching-agent.onrender.com/" target="_blank" rel="noopener">
+          View the live workflow
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- PROJECT 2 -->
+    <div class="project">
+      <div class="project-meta">
+        <div class="node-id">NODE 03 — JUDGING AGENT</div>
+        <div class="status online"><span class="dot"></span>Live dashboard</div>
+      </div>
+      <div class="project-body">
+        <h3>A(I) Can Do That!?</h3>
+        <div class="tagline">Fifty submissions, one afternoon instead of an hour of footage.</div>
+        <p>SAP employees were invited to submit a 60-second video on how they use AI at work or in daily life, as part of an internal tournament. Over 50 people submitted. I built a custom agent in SAP's <strong>Project Agent Builder</strong>, grounded in a detailed scoring rubric that shaped how the agent evaluated each entry — fed as transcriptions, not raw video.</p>
+        <p>The agent scored every submission, produced an overall ranking, and I built a <strong>dynamic dashboard</strong> to surface the results and highlight the top 10. Judges also hand-scored a sample of submissions so we could check the agent's scoring against human judgment before trusting the ranking — human-in-the-loop was a deliberate part of the design, not an afterthought.</p>
+        <p>The goal was practical: give the tournament team a trustworthy shortlist without asking anyone to watch an hour of video.</p>
+
+        <div class="media-block">
+          <div class="media-label">Screenshots</div>
+          <div class="media-gallery">
+            <figure class="media-frame full">
+              <img src="screenshot-ai-can-do-that.png" alt="A(I) Can Do That!? submissions dashboard showing the top 10 ranked entries and per-submission AI scoring notes">
+              <figcaption>Top 10 leaderboard + scoring detail</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="chips">
+          <span class="chip">SAP Project Agent Builder</span>
+          <span class="chip">Transcription pipeline</span>
+          <span class="chip">Custom scoring rubric</span>
+          <span class="chip">Human-in-the-loop calibration</span>
+          <span class="chip">Dynamic dashboard</span>
+        </div>
+        <a class="project-link" href="https://a-i-can-do-that-submissions-dashboard.onrender.com/" target="_blank" rel="noopener">
+          View the dashboard
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- PROJECT 4 -->
+    <div class="project">
+      <div class="project-meta">
+        <div class="node-id">NODE 04 — OPERATIONS TOOL</div>
+        <div class="status offline"><span class="dot"></span>Currently offline</div>
+      </div>
+      <div class="project-body">
+        <h3>Tester Tracker</h3>
+        <div class="tagline">Built from the floor, for the floor.</div>
+        <p>I work as an operations associate at Sephora, which means I see firsthand where process breaks down. Sourcing product testers for customers — and knowing whether one already exists before opening a new one and creating waste — was one of those places. So I designed and coded the whole application myself, end to end, in <strong>Ruby on Rails</strong>.</p>
+        <p>It's mobile-first, built to run on the handheld devices already on the floor, and role-aware: as an operations associate and leadership team member, I can create or remove testers and pull monthly insights on which testers get used most. Beauty advisors get a simpler view — see what's available, search by name, and check location, date opened, and SKU without hunting through a stockroom. The interface follows Sephora's own visual language so it feels native to the people using it.</p>
+        <p>This idea came out of conversations with the operations team and my own frustration finding testers on shift — it's a small tool solving a real, everyday problem.</p>
+
+        <div class="media-block">
+          <div class="media-label">Walkthrough</div>
+          <div class="video-frame">
+            <div class="yt-embed">
+              <iframe src="https://www.youtube.com/embed/y00JLeVqQlQ" title="Tester Tracker demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
+            </div>
+            <div class="video-caption">
+              <span class="rec"><span class="dot"></span>YouTube</span>
+              <span>Walking through tester creation, search, and role-based views</span>
+            </div>
+          </div>
+
+          <div class="media-label">Screenshots</div>
+          <div class="media-gallery">
+            <figure class="media-frame full">
+              <img src="screenshot-tester-tracker.png" alt="Tester Tracker landing page with a New Tester form mockup and feature overview cards">
+              <figcaption>Landing page + New Tester flow</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="chips">
+          <span class="chip">Ruby on Rails</span>
+          <span class="chip">Mobile-first UI</span>
+          <span class="chip">Role-based permissions</span>
+          <span class="chip">Usage analytics</span>
+        </div>
+        <a class="project-link disabled" href="https://tester-tracker.onrender.com/" target="_blank" rel="noopener">
+          Site is currently down — hosted on a free tier
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- PROJECT 5 -->
+    <div class="project">
+      <div class="project-meta">
+        <div class="node-id">NODE 05 — API PLAYGROUND</div>
+        <div class="status offline"><span class="dot"></span>Currently offline</div>
+      </div>
+      <div class="project-body">
+        <h3>Weather Tunes</h3>
+        <div class="tagline">A playlist for whatever the sky is doing.</div>
+        <p>A mobile-friendly app, coded in <strong>Ruby/Sinatra</strong>, that pulls current weather for a chosen location and turns it into a Spotify playlist that actually matches the mood outside — rainy-day tracks for rainy days, and so on. It chains together three APIs: weather, location, and Spotify.</p>
+        <p>This one was pure curiosity — a way to get hands-on with stitching real-time external APIs together into something small and fun. It's currently offline due to API and token constraints, but it did its job: proving out that I could wire three unrelated services into one coherent experience.</p>
+
+        <div class="media-block">
+          <div class="media-label">Screenshots</div>
+          <div class="media-gallery">
+            <figure class="media-frame full">
+              <img src="screenshot-weather-tunes.png" alt="Weather Tunes home page with a city search bar to generate a weather-matched playlist">
+              <figcaption>City search → weather-matched playlist</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="chips">
+          <span class="chip">Ruby / Sinatra</span>
+          <span class="chip">Weather API</span>
+          <span class="chip">Spotify API</span>
+          <span class="chip">Geolocation API</span>
+        </div>
+        <a class="project-link disabled" href="https://weather-tunes.onrender.com" target="_blank" rel="noopener">
+          Offline — API/token constraints
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="stack">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Toolkit</div>
+        <h2>What these were built with</h2>
+      </div>
+    </div>
+    <div class="stack-strip">
+      <span class="chip">SAP Joule Studio</span>
+      <span class="chip">SAP Project Agent Builder</span>
+      <span class="chip">Claude Code</span>
+      <span class="chip">SAP SuccessFactors</span>
+      <span class="chip">MCP Servers</span>
+      <span class="chip">OData / REST APIs</span>
+      <span class="chip">Ruby on Rails</span>
+      <span class="chip">Sinatra</span>
+      <span class="chip">Rubric &amp; prompt design</span>
+      <span class="chip">Stakeholder presentations</span>
+      <span class="chip">Mobile-first UI</span>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="foot-grid">
+      <h2>Building the next node.</h2>
+    </div>
+    <div class="foot-links">
+      <a class="btn ghost" href="https://www.linkedin.com/in/daniela-garcia-1b4310294/" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="btn ghost" href="mailto:danielagarcia13.99@gmail.com">Email</a>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="copyright">
+      <span>© 2026 Daniela Garcia</span>
+      <span>danielagarcia13.99@gmail.com · linkedin.com/in/daniela-garcia-1b4310294</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const items = document.querySelectorAll('.project');
+  if ('IntersectionObserver' in window){
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.15 });
+    items.forEach(el=>io.observe(el));
+  } else {
+    items.forEach(el=>el.classList.add('in-view'));
+  }
+</script>
+
+</body>
+</html>
